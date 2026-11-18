@@ -128,6 +128,60 @@ async def upload_media(project_id: str, request: Request, auto_analyze: bool = F
     return {"job_id": job_id}
 
 
+@router.post("/{project_id}/upload-chunk")
+async def upload_media_chunk(
+    project_id: str,
+    request: Request,
+    upload_id: str,
+    offset: int = 0,
+    final: bool = False,
+    auto_analyze: bool = False,
+    db: Session = Depends(get_db),
+):
+    """Chunked upload (<4.5 MB per request) so large videos upload cleanly through serverless gateways."""
+    get_or_404(db, Project, project_id, "Project")
+    if offset == 0:
+        _check_import_allowed(db, project_id)
+    from urllib.parse import unquote
+
+    raw_name = request.headers.get("x-filename", "upload.mp4")
+    name = sanitize_filename(unquote(raw_name), default="upload.mp4")
+    if Path(name).suffix.lower() not in MEDIA_EXTENSIONS | AUDIO_EXTENSIONS:
+        raise HTTPException(400, f"Unsupported file type '{Path(name).suffix}'")
+    safe_uid = "".join(c for c in upload_id if c.isalnum() or c in "-_")[:32] or "up"
+    folder = storage.project_folder(project_id)
+    storage.ensure_layout(folder)
+    dst = folder / "media" / name
+    tmp = folder / "media" / f".{safe_uid}_{name}.part"
+    if offset < 0 or (offset > 0 and not tmp.exists()):
+        raise HTTPException(400, "Upload session expired or invalid chunk offset; please retry upload.")
+    written = 0
+    try:
+        mode = "wb" if offset == 0 else "r+b"
+        with open(tmp, mode) as f:
+            if offset > 0:
+                f.seek(offset)
+            async for chunk in request.stream():
+                f.write(chunk)
+                written += len(chunk)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise HTTPException(400, "Chunk upload interrupted")
+    new_offset = offset + written
+    if not final:
+        return {"received": written, "offset": new_offset, "job_id": ""}
+    if new_offset == 0 or not tmp.exists():
+        tmp.unlink(missing_ok=True)
+        raise HTTPException(400, "Empty upload")
+    tmp.replace(dst)
+    job_id = manager.submit(
+        "import",
+        project_id,
+        {"path": str(dst), "mode": "uploaded", "original_name": unquote(raw_name), "auto_analyze": auto_analyze},
+    )
+    return {"job_id": job_id}
+
+
 @router.post("/{project_id}/import-path", response_model=JobRef)
 def import_path(project_id: str, body: ImportPath, db: Session = Depends(get_db)):
     if config.PUBLIC_CLOUD:

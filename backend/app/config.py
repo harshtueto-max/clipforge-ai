@@ -43,7 +43,7 @@ PUBLIC_CLOUD = os.environ.get("CLIPFORGE_PUBLIC_CLOUD", "").lower() in ("1", "tr
 
 DEFAULT_SETTINGS: dict[str, Any] = {
     "projects_dir": str(HOME / "projects"),
-    "exports_dir": str(Path.home() / "Videos" / "ClipForge Exports"),
+    "exports_dir": str(HOME / "exports") if PUBLIC_CLOUD else str(Path.home() / "Videos" / "ClipForge Exports"),
     "offline_mode": False,
     "whisper_model": "base",
     "whisper_device": "auto",  # auto | cuda | cpu
@@ -84,8 +84,13 @@ _cache: dict[str, Any] | None = None
 
 
 def ensure_dirs() -> None:
-    for d in (HOME, MODELS_DIR, WHISPER_DIR, VISION_DIR, USER_AUDIO_DIR, LOG_DIR, TMP_DIR, LIVE_DIR):
+    for d in (HOME, USER_AUDIO_DIR, LOG_DIR, TMP_DIR, LIVE_DIR):
         d.mkdir(parents=True, exist_ok=True)
+    for d in (MODELS_DIR, WHISPER_DIR, VISION_DIR):
+        try:
+            d.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            pass
     s = get_settings()
     Path(s["projects_dir"]).mkdir(parents=True, exist_ok=True)
     try:

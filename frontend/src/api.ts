@@ -33,7 +33,7 @@ function detailToMessage(detail: unknown, fallback: string): string {
   return String(detail);
 }
 
-const BACKEND_STORAGE_KEY = 'clipforge_backend_url';
+const BACKEND_STORAGE_KEY = 'clipforge_engine_override';
 
 export function isRemoteHost(): boolean {
   if (typeof window === 'undefined') return false;
@@ -143,6 +143,71 @@ export interface UploadHandle {
   abort: () => void;
 }
 
+/** Stream a File in <=3.5 MB chunks so uploads of any size pass serverless 4.5 MB body limits. */
+export function uploadChunked(
+  projectId: string,
+  file: File,
+  autoAnalyze: boolean,
+  onProgress: (loaded: number, total: number) => void,
+): { promise: Promise<JobRef>; abort: () => void } {
+  const CHUNK_SIZE = 3_500_000;
+  if (file.size <= CHUNK_SIZE) {
+    return uploadRaw<JobRef>(`/api/projects/${projectId}/upload${qs({ auto_analyze: autoAnalyze })}`, file, onProgress);
+  }
+  let currentXhr: XMLHttpRequest | null = null;
+  let aborted = false;
+  const uploadId = `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+
+  const sendChunk = (offset: number): Promise<JobRef> => {
+    if (aborted) return Promise.reject(new ApiError(0, 'Upload cancelled'));
+    const end = Math.min(offset + CHUNK_SIZE, file.size);
+    const isFinal = end >= file.size;
+    const blob = file.slice(offset, end);
+    const chunkUrl = `/api/projects/${projectId}/upload-chunk${qs({
+      upload_id: uploadId,
+      offset,
+      final: isFinal,
+      auto_analyze: isFinal ? autoAnalyze : false,
+    })}`;
+    return new Promise<JobRef>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      currentXhr = xhr;
+      xhr.open('POST', apiUrl(chunkUrl));
+      xhr.setRequestHeader('X-Filename', encodeURIComponent(file.name));
+      xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(Math.min(file.size, offset + e.loaded), file.size);
+      };
+      xhr.onload = () => {
+        let data: unknown = null;
+        try {
+          data = JSON.parse(xhr.responseText);
+        } catch {
+          data = xhr.responseText;
+        }
+        if (xhr.status >= 200 && xhr.status < 300) {
+          onProgress(end, file.size);
+          if (isFinal) resolve(data as JobRef);
+          else sendChunk(end).then(resolve, reject);
+        } else {
+          const detail = data && typeof data === 'object' && 'detail' in data ? (data as { detail: unknown }).detail : data;
+          reject(new ApiError(xhr.status, detailToMessage(detail, `Upload failed (${xhr.status})`)));
+        }
+      };
+      xhr.onerror = () => reject(new ApiError(0, 'Upload failed: network error'));
+      xhr.onabort = () => reject(new ApiError(0, 'Upload cancelled'));
+      xhr.send(blob);
+    });
+  };
+
+  return {
+    promise: sendChunk(0),
+    abort: () => {
+      aborted = true;
+      currentXhr?.abort();
+    },
+  };
+}
 /** Stream a File to the backend as the raw request body (never read into JS memory). */
 export function uploadRaw<T = JobRef>(url: string, file: File, onProgress: (loaded: number, total: number) => void): { promise: Promise<T>; abort: () => void } {
   const xhr = new XMLHttpRequest();
@@ -192,7 +257,7 @@ export const api = {
   updateProject: (id: string, body: { name?: string; options?: Record<string, unknown> }) => patch<Project>(`/api/projects/${id}`, body),
   deleteProject: (id: string, deleteExports: boolean) => del<{ deleted: boolean }>(`/api/projects/${id}${qs({ delete_exports: deleteExports })}`),
   uploadMedia: (id: string, file: File, autoAnalyze: boolean, onProgress: (l: number, t: number) => void) =>
-    uploadRaw<JobRef>(`/api/projects/${id}/upload${qs({ auto_analyze: autoAnalyze })}`, file, onProgress),
+    uploadChunked(id, file, autoAnalyze, onProgress),
   importPath: (id: string, body: { path: string; copy_file: boolean; auto_analyze: boolean; analysis_params: AnalyzeParams }) =>
     post<JobRef>(`/api/projects/${id}/import-path`, body),
   importYoutube: (id: string, body: { url: string; confirm_rights: boolean; auto_analyze: boolean; analysis_params: AnalyzeParams }) =>

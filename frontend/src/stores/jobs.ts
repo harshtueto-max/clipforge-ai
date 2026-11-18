@@ -55,7 +55,8 @@ export const useJobs = create<JobsState>((set, get) => ({
     void get().refresh();
     connect();
     pollTimer = window.setInterval(() => {
-      if (!get().connected) void get().refresh();
+      const hasActive = Object.values(get().jobs).some((j) => ACTIVE.has(j.status));
+      if (!get().connected || hasActive) void get().refresh();
     }, 3000);
   },
   subscribe: (fn) => {

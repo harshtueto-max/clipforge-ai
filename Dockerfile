@@ -1,5 +1,5 @@
 # Stage 1: Build the React + Vite frontend from source
-FROM node:20-slim AS frontend-builder
+FROM node:22-slim AS frontend-builder
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
@@ -15,7 +15,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     HF_HUB_DISABLE_TELEMETRY=1 \
     CLIPFORGE_PUBLIC_CLOUD=1 \
     CLIPFORGE_HOST=0.0.0.0 \
-    CLIPFORGE_PORT=7860
+    CLIPFORGE_PORT=7860 \
+    PORT=7860
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
@@ -33,12 +34,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 
-# Run as non-root uid 1000 (compatible with Railway, Koyeb, Render, and HF Spaces)
-RUN useradd -m -u 1000 user
+# Run as non-root uid 1000 (compatible with Vercel Container Runtime, Railway, Koyeb, Render, and HF Spaces)
+RUN useradd -m -u 1000 user && mkdir -p /app/models /tmp/clipforge && chown -R user:user /app /tmp/clipforge
 USER user
 ENV HOME=/home/user \
     PATH="/home/user/.local/bin:${PATH}" \
-    CLIPFORGE_HOME=/home/user/.clipforge
+    CLIPFORGE_HOME=/tmp/clipforge \
+    CLIPFORGE_MODELS_DIR=/app/models
 
 WORKDIR /app
 
@@ -49,7 +51,7 @@ COPY --chown=user:user assets /app/assets
 COPY --chown=user:user backend /app/backend
 COPY --from=frontend-builder --chown=user:user /frontend/dist /app/frontend/dist
 
-# Pre-warm OpenCV YuNet face detector and default Whisper 'base' model for instant startup
+# Pre-warm OpenCV YuNet face detector and default Whisper 'base' model inside /app/models for zero-download cold starts
 WORKDIR /app/backend
 RUN python -c "\
 from app import config; \
@@ -57,7 +59,7 @@ from app.services import transcription, vision; \
 config.ensure_dirs(); \
 vision.download_yunet(); \
 transcription.download_model('base'); \
-print('Preloaded Whisper base + YuNet!')"
+print('Preloaded Whisper base + YuNet into /app/models!')"
 
 EXPOSE 7860
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

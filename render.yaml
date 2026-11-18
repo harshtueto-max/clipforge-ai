@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: clipforge-ai-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: standard
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "7860"
+      - key: CLIPFORGE_PUBLIC_CLOUD
+        value: "1"

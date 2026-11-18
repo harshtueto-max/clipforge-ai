@@ -71,7 +71,7 @@ app = FastAPI(title="ClipForge AI", version=__version__, lifespan=lifespan,
               description="Local AI video clipping & editing studio. All media processing runs on this computer.")
 
 ALLOWED_HOSTS = {"127.0.0.1", "localhost", "[::1]", "testserver"}
-_TUNNEL_SUFFIXES = (".trycloudflare.com", ".ngrok-free.app", ".ngrok.app", ".ts.net", ".railway.app", ".onrender.com", ".hf.space")
+_TUNNEL_SUFFIXES = (".trycloudflare.com", ".ngrok-free.app", ".ngrok.app", ".ts.net", ".railway.app", ".onrender.com", ".koyeb.app", ".hf.space")
 
 
 def _is_allowed_host(host: str) -> bool:

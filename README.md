@@ -1,20 +1,38 @@
 # ClipForge AI
 
-**From Long Videos to High-Retention Shorts.**
+**From Long Videos & Live Streams to High-Retention Shorts — with Hindi (`हिन्दी`), Hinglish & English Captions.**
 
-ClipForge AI is a locally running, Windows-first AI video clipping and editing studio. Give it a long video (podcast,
-interview, talk, webinar, commentary, gaming, documentary…) and it transcribes, listens to and watches the **whole** video,
+ClipForge AI is a full-stack AI video clipping, live stream DVR clipping, and timeline editing studio. Give it a long video (podcast,
+interview, talk, webinar, commentary, gaming, documentary…) **or an ongoing YouTube Live stream** and it transcribes, listens to and watches the video,
 finds the strongest self-contained moments, ranks them with an explainable editorial score, builds a first edit
-(trim, dead-air removal, smart vertical reframing, word-timed captions, music bed, sparing SFX, voice processing) and lets you
+(trim, dead-air removal, smart vertical reframing, word-timed captions in **Hindi Devanagari, Hinglish, or English**, music bed, sparing SFX, voice processing) and lets you
 refine everything in a timeline editor before rendering validated MP4s with FFmpeg.
-
-All media processing runs on your computer. No cloud account, no paid API, no uploads. Optional AI providers
-(local Ollama or cloud LLMs) can be enabled for deeper semantic review; they only ever receive transcript text and timestamps
-(and still frames only if you explicitly allow it).
 
 ---
 
-## Quick start (Windows 10 / 11, 64-bit)
+## Live Web App & Cloud / Public Backend Hosting
+
+* **Live Frontend (Vercel):** https://clipforge-ai-one-alpha.vercel.app
+* **Source & Docker Repo:** https://github.com/harshtueto-max/clipforge-ai
+
+Because video clipping requires `FFmpeg`, `Faster-Whisper`, `OpenCV YuNet`, and `yt-dlp`, ClipForge AI supports three ways to run or share the backend so anyone can use it:
+
+### 1. Deploy a 24/7 Cloud Backend from GitHub (Docker — Railway / Koyeb / Render)
+This repository ships with a multi-stage [`Dockerfile`](Dockerfile), [`railway.json`](railway.json), and [`render.yaml`](render.yaml) pre-configured with `CLIPFORGE_PUBLIC_CLOUD=1` (multi-user cloud sandbox mode — disables host filesystem paths/dialogs/data-wipe while keeping browser uploads, YouTube VOD & Live clipping, Hindi/Hinglish/English captions, timeline editing, and MP4 downloads active):
+
+1. Connect `harshtueto-max/clipforge-ai` as a **Docker** web service on **Railway**, **Koyeb** (free Docker tier), **Render**, or any VPS (`docker build -t clipforge-ai . && docker run -p 7860:7860 clipforge-ai`).
+2. Copy your deployed HTTPS service URL (e.g. `https://clipforge-ai-production.up.railway.app`).
+3. Either open that HTTPS URL directly (the container serves both the React UI and API), **or** set `VITE_API_BASE=https://your-backend-url` in Vercel Environment Variables (or paste it into the **Engine URL** button in the top bar of https://clipforge-ai-one-alpha.vercel.app).
+
+### 2. Instant $0 Public Share from Your Windows GPU PC (`start_public_share.bat`)
+Want friends or teammates to use your NVIDIA GPU right now for free without paying for cloud hosting?
+1. Double-click **`start_public_share.bat`**.
+2. It restarts ClipForge AI in sandboxed `CLIPFORGE_PUBLIC_CLOUD=1` mode and opens a free **Cloudflare Quick Tunnel** (`https://....trycloudflare.com`).
+3. Share that `https://....trycloudflare.com` link directly — or paste it into **Engine URL** on https://clipforge-ai-one-alpha.vercel.app!
+
+---
+
+## Quick start (Windows 10 / 11, 64-bit Local GPU)
 
 1. Double-click **`setup.bat`** (first run only). It:
    * finds Python 3.10–3.12 (offers to install 3.12 with winget),

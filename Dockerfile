@@ -1,3 +1,12 @@
+# Stage 1: Build the React + Vite frontend from source
+FROM node:20-slim AS frontend-builder
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Production FastAPI + FFmpeg + Faster-Whisper + YuNet + Hindi/Devanagari runtime
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -24,7 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 
-# Hugging Face Spaces runs Docker containers as non-root uid 1000
+# Run as non-root uid 1000 (compatible with Railway, Koyeb, Render, and HF Spaces)
 RUN useradd -m -u 1000 user
 USER user
 ENV HOME=/home/user \
@@ -38,9 +47,9 @@ RUN pip install --no-cache-dir --user -r /app/backend/requirements.txt
 
 COPY --chown=user:user assets /app/assets
 COPY --chown=user:user backend /app/backend
-COPY --chown=user:user frontend/dist /app/frontend/dist
+COPY --from=frontend-builder --chown=user:user /frontend/dist /app/frontend/dist
 
-# Pre-warm built-in CC0 audio library, OpenCV YuNet face detector, and Whisper 'base' + 'small' models
+# Pre-warm OpenCV YuNet face detector and default Whisper 'base' model for instant startup
 WORKDIR /app/backend
 RUN python -c "\
 from app import config; \
@@ -48,8 +57,7 @@ from app.services import transcription, vision; \
 config.ensure_dirs(); \
 vision.download_yunet(); \
 transcription.download_model('base'); \
-transcription.download_model('small'); \
-print('Preloaded Whisper base + small and YuNet!')"
+print('Preloaded Whisper base + YuNet!')"
 
 EXPOSE 7860
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

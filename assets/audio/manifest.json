@@ -1,0 +1,292 @@
+{
+  "version": 1,
+  "license": "CC0 1.0 - original procedurally generated audio by ClipForge AI",
+  "items": [
+    {
+      "kind": "music",
+      "category": "cinematic",
+      "name": "Cinematic Bed",
+      "file": "music/cinematic.m4a",
+      "duration": 42.64,
+      "bpm": 70,
+      "moods": [
+        "cinematic"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "motivational",
+      "name": "Motivational Bed",
+      "file": "music/motivational.m4a",
+      "duration": 34.04,
+      "bpm": 118,
+      "moods": [
+        "motivational"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "emotional",
+      "name": "Emotional Bed",
+      "file": "music/emotional.m4a",
+      "duration": 41.5,
+      "bpm": 72,
+      "moods": [
+        "emotional"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "corporate",
+      "name": "Corporate Bed",
+      "file": "music/corporate.m4a",
+      "duration": 37.06,
+      "bpm": 108,
+      "moods": [
+        "corporate"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "podcast",
+      "name": "Podcast Bed",
+      "file": "music/podcast.m4a",
+      "duration": 39.68,
+      "bpm": 88,
+      "moods": [
+        "podcast"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "documentary",
+      "name": "Documentary Bed",
+      "file": "music/documentary.m4a",
+      "duration": 38.42,
+      "bpm": 78,
+      "moods": [
+        "documentary"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "suspense",
+      "name": "Suspense Bed",
+      "file": "music/suspense.m4a",
+      "duration": 34.99,
+      "bpm": 86,
+      "moods": [
+        "suspense"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "comedy",
+      "name": "Comedy Bed",
+      "file": "music/comedy.m4a",
+      "duration": 31.98,
+      "bpm": 126,
+      "moods": [
+        "comedy"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "lofi",
+      "name": "Lofi Bed",
+      "file": "music/lofi.m4a",
+      "duration": 43.5,
+      "bpm": 80,
+      "moods": [
+        "lofi"
+      ]
+    },
+    {
+      "kind": "music",
+      "category": "energetic",
+      "name": "Energetic Bed",
+      "file": "music/energetic.m4a",
+      "duration": 36.28,
+      "bpm": 138,
+      "moods": [
+        "energetic"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "whoosh",
+      "name": "Whoosh Up",
+      "file": "sfx/whoosh_1.m4a",
+      "duration": 0.9,
+      "bpm": null,
+      "moods": [
+        "whoosh"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "whoosh",
+      "name": "Whoosh Down",
+      "file": "sfx/whoosh_2.m4a",
+      "duration": 0.7,
+      "bpm": null,
+      "moods": [
+        "whoosh"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "impact",
+      "name": "Deep Impact",
+      "file": "sfx/impact_1.m4a",
+      "duration": 1.6,
+      "bpm": null,
+      "moods": [
+        "impact"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "impact",
+      "name": "Punch Impact",
+      "file": "sfx/impact_2.m4a",
+      "duration": 1.6,
+      "bpm": null,
+      "moods": [
+        "impact"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "pop",
+      "name": "Soft Pop",
+      "file": "sfx/pop_1.m4a",
+      "duration": 0.18,
+      "bpm": null,
+      "moods": [
+        "pop"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "pop",
+      "name": "Bright Pop",
+      "file": "sfx/pop_2.m4a",
+      "duration": 0.18,
+      "bpm": null,
+      "moods": [
+        "pop"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "riser",
+      "name": "Tension Riser",
+      "file": "sfx/riser_1.m4a",
+      "duration": 2.5,
+      "bpm": null,
+      "moods": [
+        "riser"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "riser",
+      "name": "Noise Riser",
+      "file": "sfx/riser_2.m4a",
+      "duration": 1.8,
+      "bpm": null,
+      "moods": [
+        "riser"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "transition",
+      "name": "Reverse Swell",
+      "file": "sfx/transition_1.m4a",
+      "duration": 1.2,
+      "bpm": null,
+      "moods": [
+        "transition"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "transition",
+      "name": "Swoosh Pop",
+      "file": "sfx/transition_2.m4a",
+      "duration": 0.78,
+      "bpm": null,
+      "moods": [
+        "transition"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "cinematic_hit",
+      "name": "Cinematic Boom",
+      "file": "sfx/cinematic_hit_1.m4a",
+      "duration": 3.0,
+      "bpm": null,
+      "moods": [
+        "cinematic_hit"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "cinematic_hit",
+      "name": "Metallic Hit",
+      "file": "sfx/cinematic_hit_2.m4a",
+      "duration": 3.0,
+      "bpm": null,
+      "moods": [
+        "cinematic_hit"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "notification",
+      "name": "Ding",
+      "file": "sfx/notification_1.m4a",
+      "duration": 0.8,
+      "bpm": null,
+      "moods": [
+        "notification"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "notification",
+      "name": "Chime Up",
+      "file": "sfx/notification_2.m4a",
+      "duration": 0.8,
+      "bpm": null,
+      "moods": [
+        "notification"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "comedy",
+      "name": "Boing",
+      "file": "sfx/comedy_1.m4a",
+      "duration": 0.8,
+      "bpm": null,
+      "moods": [
+        "comedy"
+      ]
+    },
+    {
+      "kind": "sfx",
+      "category": "comedy",
+      "name": "Slide Whistle",
+      "file": "sfx/comedy_2.m4a",
+      "duration": 1.0,
+      "bpm": null,
+      "moods": [
+        "comedy"
+      ]
+    }
+  ]
+}

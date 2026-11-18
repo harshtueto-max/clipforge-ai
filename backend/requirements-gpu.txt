@@ -1,0 +1,4 @@
+# Optional NVIDIA GPU acceleration for Faster-Whisper (CUDA 12 runtime libraries, ~1 GB download).
+# Requires an NVIDIA GPU with a recent driver (R525+). AMD / Intel GPUs use the CPU path for transcription.
+nvidia-cublas-cu12==12.9.2.10
+nvidia-cudnn-cu12==9.28.1.4

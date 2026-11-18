@@ -1,0 +1,30 @@
+# ClipForge AI backend - direct dependencies (tested on Windows 11, Python 3.12).
+# Full transitive pins live in requirements.lock (used as a constraints file by setup.bat).
+fastapi==0.162.7
+uvicorn[standard]==0.54.0
+# 2.0.x keeps a pure-python fallback (some Windows Smart App Control policies block SQLAlchemy 2.1's C extension)
+SQLAlchemy==2.0.57
+pydantic==2.14.3
+python-multipart==0.0.33
+httpx==0.28.1
+psutil==7.2.2
+# speech recognition (ctranslate2 4.6.0 is the newest build that loads under Smart App Control in our tests)
+faster-whisper==1.2.1
+ctranslate2==4.6.0
+setuptools==79.0.1
+huggingface_hub==2.4.0
+onnxruntime==1.32.0
+# video / vision
+opencv-python==5.0.0.93
+scenedetect==0.7.3
+# audio / analysis
+librosa==1.0.1
+soundfile==0.14.0
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.9.1
+vaderSentiment==3.3.2
+# optional YouTube import (only for content you own / are authorized to download)
+yt-dlp==2026.10.26
+# tests
+pytest==9.2.0

@@ -16,6 +16,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CLIPFORGE_PUBLIC_CLOUD=1 \
     CLIPFORGE_HOST=0.0.0.0 \
     CLIPFORGE_PORT=7860 \
+    CLIPFORGE_HOME=/tmp/clipforge \
+    CLIPFORGE_MODELS_DIR=/app/models \
     PORT=7860
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -37,32 +39,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 
-# Run as non-root uid 1000 (compatible with Vercel Container Runtime, Railway, Koyeb, Render, and HF Spaces)
-RUN useradd -m -u 1000 user && mkdir -p /app/models /tmp/clipforge && chown -R user:user /app /tmp/clipforge
-USER user
-ENV HOME=/home/user \
-    PATH="/home/user/.local/bin:${PATH}" \
-    CLIPFORGE_HOME=/tmp/clipforge \
-    CLIPFORGE_MODELS_DIR=/app/models
-
 WORKDIR /app
 
-COPY --chown=user:user backend/requirements.txt /app/backend/requirements.txt
-RUN pip install --no-cache-dir --user -r /app/backend/requirements.txt
+# Install Python packages globally into /usr/local so any runtime UID (Vercel Firecracker, uid 1000, root) finds them
+COPY backend/requirements.txt /app/backend/requirements.txt
+RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
-COPY --chown=user:user assets /app/assets
-COPY --chown=user:user backend /app/backend
-COPY --from=frontend-builder --chown=user:user /frontend/dist /app/frontend/dist
+COPY assets /app/assets
+COPY backend /app/backend
+COPY --from=frontend-builder /frontend/dist /app/frontend/dist
 
-# Pre-warm OpenCV YuNet face detector and default Whisper 'base' model inside /app/models for zero-download cold starts
+# Pre-warm OpenCV YuNet face detector and Whisper 'base' model inside world-readable /app/models
 WORKDIR /app/backend
-RUN python -c "\
+RUN mkdir -p /app/models /tmp/clipforge && python -c "\
 from app import config, main; \
 from app.services import transcription, vision; \
 config.ensure_dirs(); \
 vision.download_yunet(); \
 transcription.download_model('base'); \
-print('Preloaded Whisper base + YuNet and verified app.main import!')"
+print('Preloaded Whisper base + YuNet and verified app.main import!')" \
+    && chmod -R a+rX /app && chmod 1777 /tmp/clipforge
 
 EXPOSE 7860
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

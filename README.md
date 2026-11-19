@@ -13,6 +13,7 @@ refine everything in a timeline editor before rendering validated MP4s with FFmp
 ## Live Web App & Cloud / Public Backend Hosting
 
 * **Live Frontend (Vercel):** https://clipforge-ai-one-alpha.vercel.app
+* **Live 24/7 Cloud Backend (Vercel Container Runtime):** https://clipforge-ai-engine.vercel.app
 * **Source & Docker Repo:** https://github.com/harshtueto-max/clipforge-ai
 
 Because video clipping requires `FFmpeg`, `Faster-Whisper`, `OpenCV YuNet`, and `yt-dlp`, ClipForge AI supports three ways to run or share the backend so anyone can use it:

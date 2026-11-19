@@ -106,7 +106,8 @@ async def upload_media(project_id: str, request: Request, auto_analyze: bool = F
     storage.ensure_layout(folder)
     size = int(request.headers.get("content-length") or 0)
     free = shutil.disk_usage(folder).free
-    if size and free < size * 1.1 + 300e6:
+    reserve = 50e6 if config.PUBLIC_CLOUD else 300e6
+    if size and free < size * 1.1 + reserve:
         raise HTTPException(507, f"Insufficient disk space: need {size / 1e9:.1f} GB plus working space, have {free / 1e9:.1f} GB")
     dst = folder / "media" / name
     tmp = dst.with_suffix(dst.suffix + ".part")

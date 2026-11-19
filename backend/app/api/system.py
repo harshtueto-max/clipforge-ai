@@ -66,7 +66,8 @@ def dependencies():
         except Exception as exc:  # noqa: BLE001
             add(f"Python module {mod}", False, str(exc), fix="Re-run setup.bat")
     free = shutil.disk_usage(config.projects_dir()).free / 1e9
-    add("Free disk space", free > 5, f"{free:.1f} GB free in projects folder", fix="Free up space or choose another projects folder")
+    min_free = 0.1 if config.PUBLIC_CLOUD else 5.0
+    add("Free disk space", free > min_free, f"{free:.1f} GB free in projects folder", fix="Free up space or choose another projects folder")
     return {"checks": checks, "ready": all(c["ok"] for c in checks if c["required"])}
 
 

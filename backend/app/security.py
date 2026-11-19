@@ -9,9 +9,11 @@ import re
 import sys
 import threading
 import unicodedata
-from ctypes import wintypes
 from pathlib import Path
 from urllib.parse import urlparse
+
+if sys.platform == "win32":
+    from ctypes import wintypes
 
 from . import config
 
@@ -144,8 +146,9 @@ def validate_youtube_live_url(url: str) -> str:
 
 
 # ---------------------------------------------------------------- secrets
-class _DataBlob(ctypes.Structure):
-    _fields_ = [("cbData", wintypes.DWORD), ("pbData", ctypes.POINTER(ctypes.c_char))]
+if sys.platform == "win32":
+    class _DataBlob(ctypes.Structure):
+        _fields_ = [("cbData", wintypes.DWORD), ("pbData", ctypes.POINTER(ctypes.c_char))]
 
 
 def _dpapi(data: bytes, protect: bool) -> bytes:

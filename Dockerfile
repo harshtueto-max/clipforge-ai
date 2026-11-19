@@ -30,6 +30,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     libxcb1 \
+    libxext6 \
+    libxrender1 \
+    libsm6 \
     ca-certificates \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
@@ -54,12 +57,12 @@ COPY --from=frontend-builder --chown=user:user /frontend/dist /app/frontend/dist
 # Pre-warm OpenCV YuNet face detector and default Whisper 'base' model inside /app/models for zero-download cold starts
 WORKDIR /app/backend
 RUN python -c "\
-from app import config; \
+from app import config, main; \
 from app.services import transcription, vision; \
 config.ensure_dirs(); \
 vision.download_yunet(); \
 transcription.download_model('base'); \
-print('Preloaded Whisper base + YuNet into /app/models!')"
+print('Preloaded Whisper base + YuNet and verified app.main import!')"
 
 EXPOSE 7860
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
